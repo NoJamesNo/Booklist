@@ -5,26 +5,24 @@
   margin: 0 auto;
   padding: 2rem;
   font-weight: normal;
+  min-height: 100vh;
+  background-color: var(--color-background);
+  color: var(--color-text);
 }
 
-a,
-.green {
+a {
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
+  color: var(--color-accent);
+  transition: 0.3s;
   padding: 3px;
-}
-
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
 }
 
 @media (min-width: 1024px) {
   body {
     display: flex;
     place-items: center;
+    background-color: var(--color-background);
+    min-height: 100vh;
   }
 
   #app {

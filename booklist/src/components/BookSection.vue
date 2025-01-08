@@ -1,56 +1,41 @@
 <template>
   <div>
-    <div v-if="error">An error occurred: {{ error }}</div>
-    <div v-else-if="isLoading">Loading...</div>
+    <div v-if="error" class="text-body">An error occurred: {{ error }}</div>
+    <div v-if="isLoading" class="text-body">Loading...</div>
     <div v-else>
       <div class="category">
-        <h2>Currently Reading</h2>
+        <h2 class="text-h2">Currently Reading</h2>
         <div
           class="book-row"
-          :class="{ 'drag-over': isDragOverCurrentlyReading }"
-          @dragover.prevent="isDragOverCurrentlyReading = true"
+          :class="{ 'drag-over': isDragOverCurrentlyReading, readonly: !isOwner }"
+          @dragover.prevent="handleDragOver('Currently Reading')"
           @dragleave="isDragOverCurrentlyReading = false"
           @drop="onDrop($event, 'Currently Reading')"
         >
-          <AddBookButton @click="openModal" />
-          <div
+          <router-link v-if="isOwner" to="/add-book" class="add-book-link">
+            <AddBookButton />
+          </router-link>
+          <BookItem
             v-for="book in currentlyReading"
             :key="book.id"
-            class="book-item"
-            draggable="true"
-            @dragstart="onDragStart($event, book)"
-          >
-            <img :src="book.thumbnail_url" :alt="book.title" class="book-cover" />
-            <div class="book-info">
-              <h3>{{ book.title }}</h3>
-              <p>{{ book.authors ? book.authors.join(', ') : 'Unknown Author' }}</p>
-            </div>
-          </div>
+            :book="book"
+            :draggable="isOwner"
+          />
         </div>
       </div>
       <div class="category">
-        <h2>Have Read</h2>
+        <h2 class="text-h2">Completed</h2>
         <div
           class="book-row"
-          :class="{ 'drag-over': isDragOverHaveRead }"
-          @dragover.prevent="isDragOverHaveRead = true"
+          :class="{ 'drag-over': isDragOverHaveRead, readonly: !isOwner }"
+          @dragover.prevent="handleDragOver('Have Read')"
           @dragleave="isDragOverHaveRead = false"
           @drop="onDrop($event, 'Have Read')"
         >
-          <p v-if="haveRead.length === 0">No books in the 'Have Read' category.</p>
-          <div
-            v-for="book in haveRead"
-            :key="book.id"
-            class="book-item"
-            draggable="true"
-            @dragstart="onDragStart($event, book)"
-          >
-            <img :src="book.thumbnail_url" :alt="book.title" class="book-cover" />
-            <div class="book-info">
-              <h3>{{ book.title }}</h3>
-              <p>{{ book.authors ? book.authors.join(', ') : 'Unknown Author' }}</p>
-            </div>
+          <div v-if="haveRead.length === 0" class="empty-message">
+            <p class="text-body">No books in the 'Have Read' category.</p>
           </div>
+          <BookItem v-for="book in haveRead" :key="book.id" :book="book" :draggable="isOwner" />
         </div>
       </div>
     </div>
@@ -58,9 +43,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, onErrorCaptured } from 'vue'
-import AddBookButton from '@/components/AddBookButton.vue'
+import { ref, onMounted, watch, computed } from 'vue'
+import AddBookButton from '@/components/books/AddBookButton.vue'
 import { onAuthStateChanged, getAuth } from 'firebase/auth'
+import BookItem from '@/components/books/BookItem.vue'
 
 interface Book {
   id: string
@@ -70,33 +56,25 @@ interface Book {
   status: 'Currently Reading' | 'Have Read'
 }
 
+const props = defineProps<{ username: string }>()
+const emit = defineEmits(['openModal', 'bookUpdated'])
+
 const currentlyReading = ref<Book[]>([])
 const haveRead = ref<Book[]>([])
 const isLoading = ref(true)
-const user = ref(null)
-const error = ref(null)
+const user = ref<any>(null)
+const error = ref<string | null>(null)
 const isDragOverCurrentlyReading = ref(false)
 const isDragOverHaveRead = ref(false)
+const currentUsername = ref('')
+const isOwner = computed(() => {
+  return currentUsername.value === props.username
+})
 
 const fetchBooks = async () => {
-  if (!user.value) {
-    console.error('User not logged in')
-    isLoading.value = false
-    return
-  }
-
   try {
-    const idToken = await user.value.getIdToken()
-    const response = await fetch('/api/books', {
-      headers: {
-        Authorization: idToken
-      }
-    })
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-
+    const response = await fetch(`/api/books/user/${props.username}`)
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
     const data = await response.json()
     currentlyReading.value = data.books.filter((book: Book) => book.status === 'Currently Reading')
     haveRead.value = data.books.filter((book: Book) => book.status === 'Have Read')
@@ -108,12 +86,28 @@ const fetchBooks = async () => {
   }
 }
 
-const updateBookStatus = async (bookId: string, newStatus: 'Currently Reading' | 'Have Read') => {
-  if (!user.value) {
-    console.error('User not logged in')
-    return
+const handleDragOver = (status: string) => {
+  if (!isOwner.value) return
+  if (status === 'Currently Reading') {
+    isDragOverCurrentlyReading.value = true
+  } else {
+    isDragOverHaveRead.value = true
   }
+}
 
+const onDrop = async (event: DragEvent, newStatus: 'Currently Reading' | 'Have Read') => {
+  if (!isOwner.value) return
+  event.preventDefault()
+  const bookId = event.dataTransfer?.getData('text/plain')
+  if (bookId) {
+    await updateBookStatus(bookId, newStatus)
+  }
+  isDragOverCurrentlyReading.value = false
+  isDragOverHaveRead.value = false
+}
+
+const updateBookStatus = async (bookId: string, newStatus: 'Currently Reading' | 'Have Read') => {
+  if (!user.value) return
   try {
     const idToken = await user.value.getIdToken()
     const response = await fetch(`/api/books/${bookId}`, {
@@ -124,10 +118,7 @@ const updateBookStatus = async (bookId: string, newStatus: 'Currently Reading' |
       },
       body: JSON.stringify({ status: newStatus })
     })
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 
     const book = [...currentlyReading.value, ...haveRead.value].find((b) => b.id === bookId)
     if (book) {
@@ -140,109 +131,86 @@ const updateBookStatus = async (bookId: string, newStatus: 'Currently Reading' |
         haveRead.value.push(book)
       }
     }
+    emit('bookUpdated')
   } catch (err) {
     console.error('Error updating book status:', err)
     error.value = err instanceof Error ? err.message : 'An unknown error occurred'
   }
 }
 
-const onDragStart = (event: DragEvent, book: Book) => {
-  if (event.dataTransfer) {
-    event.dataTransfer.setData('text/plain', book.id)
-  }
-}
-
-const onDrop = async (event: DragEvent, newStatus: 'Currently Reading' | 'Have Read') => {
-  event.preventDefault()
-  const bookId = event.dataTransfer?.getData('text/plain')
-  if (bookId) {
-    await updateBookStatus(bookId, newStatus)
-  }
-  isDragOverCurrentlyReading.value = false
-  isDragOverHaveRead.value = false
-}
-
-onMounted(() => {
-  const auth = getAuth()
-  onAuthStateChanged(auth, (firebaseUser) => {
-    user.value = firebaseUser
-    if (firebaseUser) {
-      fetchBooks()
-    } else {
-      currentlyReading.value = []
-      haveRead.value = []
-      isLoading.value = false
-    }
-  })
-})
-
-watch(user, (newUser) => {
-  if (newUser) {
-    fetchBooks()
-  }
-})
-
 const openModal = () => {
   emit('openModal')
 }
 
-const emit = defineEmits(['openModal'])
-
-onErrorCaptured((err) => {
-  console.error('Error captured in BookSection:', err)
-  error.value = err instanceof Error ? err.message : 'An unknown error occurred'
-  return false
+onMounted(() => {
+  const auth = getAuth()
+  onAuthStateChanged(auth, async (firebaseUser) => {
+    user.value = firebaseUser
+    if (firebaseUser) {
+      const idToken = await firebaseUser.getIdToken()
+      const response = await fetch('/api/user', {
+        headers: { Authorization: idToken }
+      })
+      const userData = await response.json()
+      currentUsername.value = userData.username
+    }
+    fetchBooks()
+  })
 })
+
+watch(() => props.username, fetchBooks)
 </script>
 
 <style scoped>
 .category {
   width: 100%;
-  margin-bottom: 30px;
-}
-
-h2 {
-  font-size: 1.5em;
-  margin-bottom: 10px;
+  margin-bottom: var(--section-gap);
 }
 
 .book-row {
   display: flex;
-  overflow-x: auto;
-  padding: 10px 0;
+  padding: 20px;
   gap: 20px;
-}
-
-.book-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 120px;
-}
-
-.book-cover {
-  width: 100px;
-  height: 150px;
-  object-fit: cover;
-  margin-bottom: 10px;
-}
-
-.book-info {
-  text-align: center;
-}
-
-.book-info h3 {
-  font-size: 0.9em;
-  margin: 0;
-}
-
-.book-info p {
-  font-size: 0.8em;
-  margin: 5px 0 0;
+  border-radius: 8px;
+  max-width: 1200px;
+  overflow-x: scroll;
 }
 
 .book-row.drag-over {
-  background-color: #f0f0f0;
-  border: 2px dashed #999;
+  background-color: var(--color-background-mute);
+  border: 2px dashed var(--color-border-hover);
+}
+
+.readonly {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.book-row.readonly {
+  border: none;
+}
+
+/* Scrollbar styling */
+.book-row::-webkit-scrollbar {
+  height: 8px;
+}
+
+.book-row::-webkit-scrollbar-track {
+  background: var(--color-background-soft);
+  border-radius: 4px;
+}
+
+.book-row::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+.book-row::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-hover);
+}
+
+.add-book-link {
+  text-decoration: none;
+  display: flex;
 }
 </style>

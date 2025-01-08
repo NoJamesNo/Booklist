@@ -1,55 +1,92 @@
-/* color palette from <https://github.com/vuejs/theme> */
+/* Import fonts */
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=Bodoni+Moda:wght@600;700&display=swap');
+
+/* Light mode colors */
 :root {
-  --vt-c-white: #ffffff;
-  --vt-c-white-soft: #f8f8f8;
-  --vt-c-white-mute: #f2f2f2;
+  /* Colors */
+  --color-primary: #2c3e50;
+  --color-secondary: #666666;
+  --color-accent: #954646;
+  --color-background: #ffffff;
+  --color-background-soft: #f8f8f8;
+  --color-background-mute: #f0f0f0;
+  --color-border: #cccccc;
+  --color-border-hover: #999999;
+  --color-text: #2c3e50;
+  --color-text-soft: #666666;
 
-  --vt-c-black: #181818;
-  --vt-c-black-soft: #222222;
-  --vt-c-black-mute: #282828;
+  /* Typography */
+  --font-family-base: 'Crimson Pro', Georgia, 'Times New Roman', serif;
+  --font-family-logo: 'Bodoni Moda', Georgia, serif;
+  --font-size-logo: 1.8rem;
+  --font-size-h1: 2rem;
+  --font-size-h2: 1.4rem;
+  --font-size-body: 1rem;
+  --font-size-small: 0.9rem;
 
-  --vt-c-indigo: #2c3e50;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
 
-  --vt-c-divider-light-1: rgba(60, 60, 60, 0.29);
-  --vt-c-divider-light-2: rgba(60, 60, 60, 0.12);
-  --vt-c-divider-dark-1: rgba(84, 84, 84, 0.65);
-  --vt-c-divider-dark-2: rgba(84, 84, 84, 0.48);
-
-  --vt-c-text-light-1: var(--vt-c-indigo);
-  --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
-  --vt-c-text-dark-1: var(--vt-c-white);
-  --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
+  /* Spacing */
+  --section-gap: 30px;
 }
 
-/* semantic color variables for this project */
-:root {
-  --color-background: var(--vt-c-white);
-  --color-background-soft: var(--vt-c-white-soft);
-  --color-background-mute: var(--vt-c-white-mute);
-
-  --color-border: var(--vt-c-divider-light-2);
-  --color-border-hover: var(--vt-c-divider-light-1);
-
-  --color-heading: var(--vt-c-text-light-1);
-  --color-text: var(--vt-c-text-light-1);
-
-  --section-gap: 160px;
-}
-
+/* Dark mode colors */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background: var(--vt-c-black);
-    --color-background-soft: var(--vt-c-black-soft);
-    --color-background-mute: var(--vt-c-black-mute);
-
-    --color-border: var(--vt-c-divider-dark-2);
-    --color-border-hover: var(--vt-c-divider-dark-1);
-
-    --color-heading: var(--vt-c-text-dark-1);
-    --color-text: var(--vt-c-text-dark-2);
+    --color-primary: #ecf0f1;
+    --color-secondary: #b0b0b0;
+    --color-accent: #c57676;
+    --color-background: #121212;
+    --color-background-soft: #1f1f1f;
+    --color-background-mute: #2a2a2a;
+    --color-border: #333333;
+    --color-border-hover: #444444;
+    --color-text: #ecf0f1;
+    --color-text-soft: #b0b0b0;
   }
 }
 
+/* Typography classes */
+.text-logo {
+  font-family: var(--font-family-logo);
+  font-size: var(--font-size-logo);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  letter-spacing: -0.02em;
+}
+
+.text-h1 {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+}
+
+.text-h2 {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+}
+
+.text-body {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text);
+}
+
+.text-small {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-soft);
+}
+
+/* Base styles */
 *,
 *::before,
 *::after {
@@ -63,24 +100,50 @@ body {
   color: var(--color-text);
   background: var(--color-background);
   transition:
-    color 0.5s,
-    background-color 0.5s;
+    color 0.3s,
+    background-color 0.3s;
   line-height: 1.6;
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-family-base);
   font-size: 15px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Button styles */
+.btn-auth {
+  padding: 8px 16px;
+  background-color: var(--color-accent);
+  color: var(--color-background);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  transition: background-color 0.2s ease;
+}
+
+.btn-auth:hover {
+  background-color: var(--color-accent);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background-mute);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-hover);
 }
