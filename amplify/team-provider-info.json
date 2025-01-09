@@ -16,7 +16,7 @@
       "function": {
         "booklist": {
           "deploymentBucketName": "amplify-booklist-dev-d3057-deployment",
-          "s3Key": "amplify-builds/booklist-674b6e6970536270582f-build.zip"
+          "s3Key": "amplify-builds/booklist-6e576e54625a6a366a37-build.zip"
         }
       },
       "auth": {
