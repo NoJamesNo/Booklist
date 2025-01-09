@@ -3,10 +3,11 @@ import { onMounted } from 'vue'
 
 import Header from './components/Header.vue'
 import Sidebar from './components/Sidebar.vue'
+import { fetchApi } from './config/api'
 
 onMounted(async () => {
   try {
-    const response = await fetch('/api/test')
+    const response = await fetchApi('/test')
     const data = await response.json()
     console.log('Backend test:', data)
   } catch (error) {
