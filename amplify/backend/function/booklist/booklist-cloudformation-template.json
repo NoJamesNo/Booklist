@@ -15,9 +15,6 @@
     },
     "s3Key": {
       "Type": "String"
-    },
-    "poop": {
-      "Type": "String"
     }
   },
   "Conditions": {
@@ -72,9 +69,6 @@
             },
             "REGION": {
               "Ref": "AWS::Region"
-            },
-            "poop": {
-              "Ref": "poop"
             }
           }
         },
@@ -95,12 +89,12 @@
         "RoleName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "booklistLambdaRoleb61f5694",
+            "booklistLambdaRolefc0ca486",
             {
               "Fn::Join": [
                 "",
                 [
-                  "booklistLambdaRoleb61f5694",
+                  "booklistLambdaRolefc0ca486",
                   "-",
                   {
                     "Ref": "env"

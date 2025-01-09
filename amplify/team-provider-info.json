@@ -1,22 +1,21 @@
 {
   "dev": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-booklist-dev-8a568-authRole",
-      "UnauthRoleArn": "arn:aws:iam::379625338021:role/amplify-booklist-dev-8a568-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::379625338021:role/amplify-booklist-dev-8a568-authRole",
+      "AuthRoleName": "amplify-booklist-dev-96c17-authRole",
+      "UnauthRoleArn": "arn:aws:iam::379625338021:role/amplify-booklist-dev-96c17-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::379625338021:role/amplify-booklist-dev-96c17-authRole",
       "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-booklist-dev-8a568-deployment",
-      "UnauthRoleName": "amplify-booklist-dev-8a568-unauthRole",
-      "StackName": "amplify-booklist-dev-8a568",
-      "StackId": "arn:aws:cloudformation:us-east-1:379625338021:stack/amplify-booklist-dev-8a568/ec7aee50-ced5-11ef-bf54-12a962168ddf",
-      "AmplifyAppId": "d34lyyjjyendaa"
+      "DeploymentBucketName": "amplify-booklist-dev-96c17-deployment",
+      "UnauthRoleName": "amplify-booklist-dev-96c17-unauthRole",
+      "StackName": "amplify-booklist-dev-96c17",
+      "StackId": "arn:aws:cloudformation:us-east-1:379625338021:stack/amplify-booklist-dev-96c17/16fce9f0-cede-11ef-abc2-0affeb10e915",
+      "AmplifyAppId": "d20ms3y34ybwv5"
     },
     "categories": {
       "function": {
         "booklist": {
-          "deploymentBucketName": "amplify-booklist-dev-8a568-deployment",
-          "s3Key": "amplify-builds/booklist-6e576e54625a6a366a37-build.zip",
-          "poop": "poop"
+          "deploymentBucketName": "amplify-booklist-dev-96c17-deployment",
+          "s3Key": "amplify-builds/booklist-366f57514169436a4139-build.zip"
         }
       },
       "api": {

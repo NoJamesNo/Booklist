@@ -31,14 +31,6 @@
         }
       ]
     },
-    "AMPLIFY_function_booklist_poop": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "booklist"
-        }
-      ]
-    },
     "AMPLIFY_function_booklist_s3Key": {
       "usedBy": [
         {

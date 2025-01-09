@@ -1,9 +1,3 @@
 {
-  "lambdaLayers": [],
-  "environmentVariableList": [
-    {
-      "cloudFormationParameterName": "poop",
-      "environmentVariableName": "poop"
-    }
-  ]
+  "lambdaLayers": []
 }

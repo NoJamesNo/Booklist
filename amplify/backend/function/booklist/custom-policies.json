@@ -1,6 +1,15 @@
-[
-  {
-    "Action": [],
-    "Resource": []
+{
+  "function": {
+    "booklist": {
+      "build": true,
+      "dependsOn": [],
+      "build": {
+        "commands": [
+          "cp -r ../../../../backend/src .",
+          "cp ../../../../backend/package.json .",
+          "npm install"
+        ]
+      }
+    }
   }
-]
+}
