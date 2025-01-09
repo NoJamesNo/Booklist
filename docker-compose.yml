@@ -43,6 +43,9 @@ services:
       - backend
     networks:
       - app-network
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=http://localhost:3000
 
   # Development Frontend Service
   frontend-dev:
