@@ -13,14 +13,14 @@
       "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-booklist-dev-d3057-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
     },
     "categories": {
+      "auth": {
+        "booklist": {}
+      },
       "function": {
         "booklist": {
           "deploymentBucketName": "amplify-booklist-dev-d3057-deployment",
           "s3Key": "amplify-builds/booklist-6e576e54625a6a366a37-build.zip"
         }
-      },
-      "auth": {
-        "booklist": {}
       },
       "api": {
         "booklist": {}
