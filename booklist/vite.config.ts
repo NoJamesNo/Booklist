@@ -17,7 +17,8 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://backend:3000',
+        target:
+          process.env.NODE_ENV === 'production' ? process.env.VITE_API_URL : 'http://backend:3000',
         changeOrigin: true,
         secure: false
       }
