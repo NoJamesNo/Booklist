@@ -1,25 +1,22 @@
 {
   "dev": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-booklist-dev-d3057-authRole",
-      "UnauthRoleArn": "arn:aws:iam::379625338021:role/amplify-booklist-dev-d3057-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::379625338021:role/amplify-booklist-dev-d3057-authRole",
+      "AuthRoleName": "amplify-booklist-dev-8a568-authRole",
+      "UnauthRoleArn": "arn:aws:iam::379625338021:role/amplify-booklist-dev-8a568-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::379625338021:role/amplify-booklist-dev-8a568-authRole",
       "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-booklist-dev-d3057-deployment",
-      "UnauthRoleName": "amplify-booklist-dev-d3057-unauthRole",
-      "StackName": "amplify-booklist-dev-d3057",
-      "StackId": "arn:aws:cloudformation:us-east-1:379625338021:stack/amplify-booklist-dev-d3057/1982a020-ce3e-11ef-b75b-0affec8c1897",
-      "AmplifyAppId": "d1ed0c60jkysj4",
-      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-booklist-dev-d3057-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
+      "DeploymentBucketName": "amplify-booklist-dev-8a568-deployment",
+      "UnauthRoleName": "amplify-booklist-dev-8a568-unauthRole",
+      "StackName": "amplify-booklist-dev-8a568",
+      "StackId": "arn:aws:cloudformation:us-east-1:379625338021:stack/amplify-booklist-dev-8a568/ec7aee50-ced5-11ef-bf54-12a962168ddf",
+      "AmplifyAppId": "d34lyyjjyendaa"
     },
     "categories": {
-      "auth": {
-        "booklist": {}
-      },
       "function": {
         "booklist": {
-          "deploymentBucketName": "amplify-booklist-dev-d3057-deployment",
-          "s3Key": "amplify-builds/booklist-6e576e54625a6a366a37-build.zip"
+          "deploymentBucketName": "amplify-booklist-dev-8a568-deployment",
+          "s3Key": "amplify-builds/booklist-6e576e54625a6a366a37-build.zip",
+          "poop": "poop"
         }
       },
       "api": {

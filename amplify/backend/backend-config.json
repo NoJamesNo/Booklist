@@ -15,32 +15,6 @@
       "service": "API Gateway"
     }
   },
-  "auth": {
-    "booklist": {
-      "dependsOn": [],
-      "frontendAuthConfig": {
-        "mfaConfiguration": "OFF",
-        "mfaTypes": [
-          "SMS"
-        ],
-        "passwordProtectionSettings": {
-          "passwordPolicyCharacters": [],
-          "passwordPolicyMinLength": 8
-        },
-        "signupAttributes": [
-          "EMAIL"
-        ],
-        "socialProviders": [],
-        "usernameAttributes": [],
-        "verificationMechanisms": [
-          "EMAIL"
-        ]
-      },
-      "providerPlugin": "awscloudformation",
-      "service": "Cognito",
-      "serviceType": "managed"
-    }
-  },
   "function": {
     "booklist": {
       "build": true,
@@ -50,6 +24,14 @@
   },
   "parameters": {
     "AMPLIFY_function_booklist_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "booklist"
+        }
+      ]
+    },
+    "AMPLIFY_function_booklist_poop": {
       "usedBy": [
         {
           "category": "function",

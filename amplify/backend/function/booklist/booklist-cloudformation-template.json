@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Lambda Function resource stack creation using Amplify CLI",
+  "Description": "{\"createdOn\":\"Mac\",\"createdBy\":\"Amplify\",\"createdWith\":\"12.14.0\",\"stackType\":\"function-Lambda\",\"metadata\":{\"whyContinueWithGen1\":\"I am a current Gen 1 user\"}}",
   "Parameters": {
     "CloudWatchRule": {
       "Type": "String",
@@ -14,6 +14,9 @@
       "Type": "String"
     },
     "s3Key": {
+      "Type": "String"
+    },
+    "poop": {
       "Type": "String"
     }
   },
@@ -69,6 +72,9 @@
             },
             "REGION": {
               "Ref": "AWS::Region"
+            },
+            "poop": {
+              "Ref": "poop"
             }
           }
         },
@@ -89,12 +95,12 @@
         "RoleName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "booklistLambdaRolefeeb4d62",
+            "booklistLambdaRoleb61f5694",
             {
               "Fn::Join": [
                 "",
                 [
-                  "booklistLambdaRolefeeb4d62",
+                  "booklistLambdaRoleb61f5694",
                   "-",
                   {
                     "Ref": "env"
