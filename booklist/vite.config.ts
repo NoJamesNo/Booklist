@@ -1,5 +1,4 @@
 import { fileURLToPath, URL } from 'node:url'
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
@@ -18,7 +17,9 @@ export default defineConfig({
     proxy: {
       '/api': {
         target:
-          process.env.NODE_ENV === 'production' ? process.env.VITE_API_URL : 'http://backend:3000',
+          process.env.NODE_ENV === 'production'
+            ? process.env.VITE_API_URL || 'https://your-api-gateway-url.com/dev'
+            : 'http://backend:3000',
         changeOrigin: true,
         secure: false
       }
