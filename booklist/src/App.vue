@@ -1,6 +1,18 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
+
 import Header from './components/Header.vue'
 import Sidebar from './components/Sidebar.vue'
+
+onMounted(async () => {
+  try {
+    const response = await fetch('/api/test')
+    const data = await response.json()
+    console.log('Backend test:', data)
+  } catch (error) {
+    console.error('Backend test failed:', error)
+  }
+})
 </script>
 
 <template>
