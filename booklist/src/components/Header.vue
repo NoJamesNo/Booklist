@@ -71,6 +71,7 @@ import { getAuth, signOut, onAuthStateChanged } from 'firebase/auth'
 import { useRouter } from 'vue-router'
 import LoginModal from './auth/LoginModal.vue'
 import SignUpModal from './auth/SignUpModal.vue'
+import { fetchApi } from '@/config/api'
 
 const auth = getAuth()
 const router = useRouter()
@@ -90,10 +91,13 @@ onMounted(() => {
   onAuthStateChanged(auth, async (currentUser) => {
     user.value = currentUser
     authInitialized.value = true
+
     if (currentUser) {
       const idToken = await currentUser.getIdToken()
-      const response = await fetch('/api/user', {
-        headers: { Authorization: idToken }
+      const response = await fetchApi('/user', {
+        headers: {
+          Authorization: idToken
+        }
       })
       userData.value = await response.json()
     }

@@ -89,6 +89,7 @@ import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import debounce from 'lodash/debounce'
 import { user } from '../firebase'
+import { fetchApi } from '@/config/api'
 
 const router = useRouter()
 const searchQuery = ref('')
@@ -131,7 +132,7 @@ const addBook = async (book: any) => {
       throw new Error('User is not signed in')
     }
     const idToken = await user.value.getIdToken()
-    const response = await fetch('/api/books', {
+    const response = await fetchApi('/books', {
       method: 'POST',
       headers: {
         Authorization: idToken,
@@ -150,8 +151,10 @@ const addBook = async (book: any) => {
       throw new Error(`Failed to add book: ${response.status}`)
     }
 
-    const userData = await fetch('/api/user', {
-      headers: { Authorization: idToken }
+    const userData = await fetchApi('/user', {
+      headers: {
+        Authorization: idToken
+      }
     }).then((res) => res.json())
 
     router.push(`/${userData.username}`)

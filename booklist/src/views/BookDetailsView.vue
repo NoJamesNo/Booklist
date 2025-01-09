@@ -27,7 +27,6 @@
           </div>
         </div>
       </div>
-
       <div v-if="isAuthenticated && userStatus" class="user-book-status">
         <div class="status-header">
           <h2>Your Book Status</h2>
@@ -44,6 +43,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { user } from '../firebase'
+import { fetchApi } from '@/config/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -52,14 +52,15 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 const userStatus = ref<string | null>(null)
 const currentUsername = ref<string>('')
-
 const isAuthenticated = computed(() => !!user.value)
 
 const fetchCurrentUsername = async () => {
   if (user.value) {
     const idToken = await user.value.getIdToken()
-    const response = await fetch('/api/user', {
-      headers: { Authorization: idToken }
+    const response = await fetchApi('/user', {
+      headers: {
+        Authorization: idToken
+      }
     })
     const userData = await response.json()
     currentUsername.value = userData.username
@@ -68,12 +69,10 @@ const fetchCurrentUsername = async () => {
 
 const fetchBookDetails = async () => {
   try {
-    const response = await fetch(`/api/books/details/${route.params.bookId}`)
+    const response = await fetchApi(`/books/details/${route.params.bookId}`)
     if (!response.ok) throw new Error('Failed to fetch book details')
-
     const data = await response.json()
     book.value = data
-
     if (user.value) {
       const reader = data.readers.find((r: any) => r.username === currentUsername.value)
       userStatus.value = reader?.status || null
@@ -89,9 +88,8 @@ const fetchBookDetails = async () => {
 const addToLibrary = async () => {
   try {
     if (!user.value) return
-
     const idToken = await user.value.getIdToken()
-    await fetch('/api/books', {
+    await fetchApi('/books', {
       method: 'POST',
       headers: {
         Authorization: idToken,
@@ -107,7 +105,6 @@ const addToLibrary = async () => {
         status: 'Currently Reading'
       })
     })
-
     userStatus.value = 'Currently Reading'
     await fetchBookDetails()
   } catch (err) {
@@ -118,9 +115,8 @@ const addToLibrary = async () => {
 const updateStatus = async () => {
   try {
     if (!user.value || !userStatus.value) return
-
     const idToken = await user.value.getIdToken()
-    await fetch(`/api/books/${book.value.id}`, {
+    await fetchApi(`/books/${book.value.id}`, {
       method: 'PATCH',
       headers: {
         Authorization: idToken,
@@ -130,7 +126,6 @@ const updateStatus = async () => {
         status: userStatus.value
       })
     })
-
     await fetchBookDetails()
   } catch (err) {
     console.error('Error updating status:', err)
@@ -139,18 +134,15 @@ const updateStatus = async () => {
 
 const removeFromLibrary = async () => {
   if (!confirm('Are you sure you want to remove this book from your library?')) return
-
   try {
     if (!user.value) return
     const idToken = await user.value.getIdToken()
-
-    await fetch(`/api/books/${book.value.id}/library`, {
+    await fetchApi(`/books/${book.value.id}/library`, {
       method: 'DELETE',
       headers: {
         Authorization: idToken
       }
     })
-
     userStatus.value = null
     await fetchBookDetails()
   } catch (err) {

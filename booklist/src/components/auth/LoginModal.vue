@@ -33,6 +33,7 @@ import {
   signInWithPopup
 } from 'firebase/auth'
 import { useRouter } from 'vue-router'
+import { fetchApi } from '@/config/api'
 
 const isModalOpen = ref(false)
 const email = ref('')
@@ -76,17 +77,25 @@ const handleGoogleSignIn = async (response: any) => {
 const createOrUpdateUser = async (user: any) => {
   const idToken = await user.getIdToken()
   try {
-    const response = await fetch('/api/user', {
+    const response = await fetchApi('/user', {
       method: 'POST',
-      headers: { Authorization: idToken, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: user.displayName, email: user.email })
+      headers: {
+        Authorization: idToken,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: user.displayName,
+        email: user.email
+      })
     })
+
     const { user: userData } = await response.json()
     router.push(`/${userData.username}`)
   } catch (error) {
     console.error('Error:', error)
   }
 }
+
 const closeModalOnOverlayClick = (event: MouseEvent) => {
   if (event.target === event.currentTarget) {
     closeModal()

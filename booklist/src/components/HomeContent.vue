@@ -29,6 +29,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { fetchApi } from '@/config/api'
 
 interface Book {
   id: string
@@ -45,7 +46,7 @@ const error = ref<string | null>(null)
 
 const fetchPopularBooks = async () => {
   try {
-    const response = await fetch('/api/books/popular')
+    const response = await fetchApi('/books/popular')
     if (!response.ok) {
       throw new Error('Failed to fetch popular books')
     }

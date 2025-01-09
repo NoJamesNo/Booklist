@@ -23,6 +23,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import BookSection from '@/components/BookSection.vue'
+import { fetchApi } from '@/config/api'
 
 const route = useRoute()
 const username = computed(() => route.params.username as string)
@@ -59,12 +60,16 @@ onMounted(() => {
     if (firebaseUser) {
       const idToken = await firebaseUser.getIdToken()
       try {
-        const response = await fetch('/api/user', {
-          headers: { Authorization: idToken }
+        const response = await fetchApi('/user', {
+          headers: {
+            Authorization: idToken
+          }
         })
+
         if (!response.ok) {
           throw new Error('Failed to fetch user data')
         }
+
         const userData = await response.json()
         currentUsername.value = userData.username
       } catch (err) {

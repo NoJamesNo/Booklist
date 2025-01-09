@@ -31,6 +31,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
+import { fetchApi } from '@/config/api'
 
 const currentUsername = ref('')
 
@@ -39,8 +40,10 @@ onMounted(() => {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       const idToken = await user.getIdToken()
-      const response = await fetch('/api/user', {
-        headers: { Authorization: idToken }
+      const response = await fetchApi('/user', {
+        headers: {
+          Authorization: idToken
+        }
       })
       const userData = await response.json()
       currentUsername.value = userData.username

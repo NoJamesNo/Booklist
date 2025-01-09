@@ -5,6 +5,7 @@ import HomeView from '../views/HomeView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
 import AddBookView from '../views/AddBookView.vue'
 import BookDetailsView from '../views/BookDetailsView.vue'
+import { fetchApi } from '@/config/api'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -62,8 +63,10 @@ router.beforeEach(async (to, from, next) => {
   if (user && to.path === '/') {
     try {
       const idToken = await user.getIdToken()
-      const response = await fetch('/api/user', {
-        headers: { Authorization: idToken }
+      const response = await fetchApi('/user', {
+        headers: {
+          Authorization: idToken
+        }
       })
 
       if (!response.ok) {
@@ -80,8 +83,10 @@ router.beforeEach(async (to, from, next) => {
     // If trying to access guest-only page while logged in
     try {
       const idToken = await user.getIdToken()
-      const response = await fetch('/api/user', {
-        headers: { Authorization: idToken }
+      const response = await fetchApi('/user', {
+        headers: {
+          Authorization: idToken
+        }
       })
       const userData = await response.json()
       next(`/${userData.username}`)

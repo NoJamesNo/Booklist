@@ -47,6 +47,7 @@ import { ref, onMounted, watch, computed } from 'vue'
 import AddBookButton from '@/components/books/AddBookButton.vue'
 import { onAuthStateChanged, getAuth } from 'firebase/auth'
 import BookItem from '@/components/books/BookItem.vue'
+import { fetchApi } from '@/config/api'
 
 interface Book {
   id: string
@@ -73,8 +74,9 @@ const isOwner = computed(() => {
 
 const fetchBooks = async () => {
   try {
-    const response = await fetch(`/api/books/user/${props.username}`)
+    const response = await fetchApi(`/books/user/${props.username}`)
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+
     const data = await response.json()
     currentlyReading.value = data.books.filter((book: Book) => book.status === 'Currently Reading')
     haveRead.value = data.books.filter((book: Book) => book.status === 'Have Read')
@@ -108,9 +110,10 @@ const onDrop = async (event: DragEvent, newStatus: 'Currently Reading' | 'Have R
 
 const updateBookStatus = async (bookId: string, newStatus: 'Currently Reading' | 'Have Read') => {
   if (!user.value) return
+
   try {
     const idToken = await user.value.getIdToken()
-    const response = await fetch(`/api/books/${bookId}`, {
+    const response = await fetchApi(`/books/${bookId}`, {
       method: 'PATCH',
       headers: {
         Authorization: idToken,
@@ -118,6 +121,7 @@ const updateBookStatus = async (bookId: string, newStatus: 'Currently Reading' |
       },
       body: JSON.stringify({ status: newStatus })
     })
+
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 
     const book = [...currentlyReading.value, ...haveRead.value].find((b) => b.id === bookId)
@@ -125,12 +129,14 @@ const updateBookStatus = async (bookId: string, newStatus: 'Currently Reading' |
       book.status = newStatus
       currentlyReading.value = currentlyReading.value.filter((b) => b.id !== bookId)
       haveRead.value = haveRead.value.filter((b) => b.id !== bookId)
+
       if (newStatus === 'Currently Reading') {
         currentlyReading.value.push(book)
       } else {
         haveRead.value.push(book)
       }
     }
+
     emit('bookUpdated')
   } catch (err) {
     console.error('Error updating book status:', err)
