@@ -2,14 +2,17 @@ const API_BASE = import.meta.env.PROD ? import.meta.env.VITE_API_URL : '/api'
 
 export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
   const url = `${API_BASE}${endpoint}`
-  console.log('Making request to:', url)
-  console.log('With headers:', options.headers)
+  console.log('Request URL:', url)
+  console.log('Request headers:', options.headers)
 
-  return fetch(url, {
+  const finalOptions = {
     ...options,
     headers: {
       'Content-Type': 'application/json',
       ...options.headers
     }
-  })
+  }
+
+  console.log('Final headers:', finalOptions.headers)
+  return fetch(url, finalOptions)
 }

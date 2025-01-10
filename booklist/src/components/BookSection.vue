@@ -74,10 +74,28 @@ const isOwner = computed(() => {
 const fetchBooks = async () => {
   console.log('Fetching books for:', props.username)
   try {
-    const response = await fetchApi(`/books/user/${props.username}`)
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    }
+
+    // Add auth token if user is logged in
+    if (user.value) {
+      const idToken = await user.value.getIdToken()
+      headers['Authorization'] = `Bearer ${idToken}`
+    }
+
+    const response = await fetchApi(`/books/user/${props.username}`, { headers })
+    console.log('Books response status:', response.status)
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Books error response:', errorText)
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
     const data = await response.json()
     console.log('Books data received:', data)
+
     currentlyReading.value = data.books.filter((book: Book) => book.status === 'Currently Reading')
     haveRead.value = data.books.filter((book: Book) => book.status === 'Have Read')
   } catch (err) {
@@ -112,17 +130,22 @@ const updateBookStatus = async (bookId: string, newStatus: 'Currently Reading' |
   if (!user.value) return
   try {
     const idToken = await user.value.getIdToken()
-    console.log('Updating book status, token length:', idToken.length)
     const response = await fetchApi(`/books/${bookId}`, {
       method: 'PATCH',
       headers: {
-        Authorization: `Bearer ${idToken}`,
+        Authorization: idToken,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ status: newStatus })
     })
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 
+    console.log('Update status response:', response.status)
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Update error response:', errorText)
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
     const book = [...currentlyReading.value, ...haveRead.value].find((b) => b.id === bookId)
     if (book) {
       book.status = newStatus
@@ -141,27 +164,26 @@ const updateBookStatus = async (bookId: string, newStatus: 'Currently Reading' |
   }
 }
 
-const openModal = () => {
-  emit('openModal')
-}
-
 onMounted(() => {
   console.log('Component mounted')
   const auth = getAuth()
   onAuthStateChanged(auth, async (firebaseUser) => {
-    console.log('Auth state changed:', firebaseUser ? 'User logged in' : 'No user')
+    console.log('Auth state changed:', firebaseUser?.uid)
     user.value = firebaseUser
+
     if (firebaseUser) {
       try {
-        const idToken = await firebaseUser.getIdToken()
-        console.log('Got token, length:', idToken.length)
+        const idToken = await firebaseUser.getIdToken(true)
+        // Use fetchApi but without Bearer prefix for both dev and prod
         const response = await fetchApi('/user', {
           headers: {
-            Authorization: `Bearer ${idToken}`
+            Authorization: idToken
           }
         })
 
         if (!response.ok) {
+          const errorText = await response.text()
+          console.error('Error response:', errorText)
           throw new Error(`Failed to fetch user data: ${response.status}`)
         }
 
@@ -176,7 +198,6 @@ onMounted(() => {
     fetchBooks()
   })
 })
-
 watch(() => props.username, fetchBooks)
 </script>
 
