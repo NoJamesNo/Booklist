@@ -23,6 +23,7 @@
           />
         </div>
       </div>
+
       <div class="category">
         <h2 class="text-h2">Completed</h2>
         <div
@@ -68,16 +69,36 @@ const error = ref<string | null>(null)
 const isDragOverCurrentlyReading = ref(false)
 const isDragOverHaveRead = ref(false)
 const currentUsername = ref('')
+
 const isOwner = computed(() => {
   return currentUsername.value === props.username
 })
 
 const fetchBooks = async () => {
+  console.log('Fetching books for username:', props.username)
   try {
-    const response = await fetchApi(`/books/user/${props.username}`)
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    }
+
+    if (user.value) {
+      const idToken = await user.value.getIdToken()
+      console.log('Token for book fetch:', idToken.substring(0, 20) + '...')
+      headers['Authorization'] = `Bearer ${idToken}`
+    }
+
+    const response = await fetchApi(`/books/user/${props.username}`, { headers })
+    console.log('Books API response status:', response.status)
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Error response:', errorText)
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
 
     const data = await response.json()
+    console.log('Books data received:', data)
+
     currentlyReading.value = data.books.filter((book: Book) => book.status === 'Currently Reading')
     haveRead.value = data.books.filter((book: Book) => book.status === 'Have Read')
   } catch (err) {
@@ -110,33 +131,37 @@ const onDrop = async (event: DragEvent, newStatus: 'Currently Reading' | 'Have R
 
 const updateBookStatus = async (bookId: string, newStatus: 'Currently Reading' | 'Have Read') => {
   if (!user.value) return
-
   try {
     const idToken = await user.value.getIdToken()
+    console.log('Updating book status with token:', idToken.substring(0, 20) + '...')
+
     const response = await fetchApi(`/books/${bookId}`, {
       method: 'PATCH',
       headers: {
-        Authorization: idToken,
+        Authorization: `Bearer ${idToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ status: newStatus })
     })
 
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Update status error:', errorText)
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
 
     const book = [...currentlyReading.value, ...haveRead.value].find((b) => b.id === bookId)
+
     if (book) {
       book.status = newStatus
       currentlyReading.value = currentlyReading.value.filter((b) => b.id !== bookId)
       haveRead.value = haveRead.value.filter((b) => b.id !== bookId)
-
       if (newStatus === 'Currently Reading') {
         currentlyReading.value.push(book)
       } else {
         haveRead.value.push(book)
       }
     }
-
     emit('bookUpdated')
   } catch (err) {
     console.error('Error updating book status:', err)
@@ -149,18 +174,51 @@ const openModal = () => {
 }
 
 onMounted(() => {
+  console.log('Component mounted')
   const auth = getAuth()
-  onAuthStateChanged(auth, async (firebaseUser) => {
-    user.value = firebaseUser
-    if (firebaseUser) {
-      const idToken = await firebaseUser.getIdToken()
-      const response = await fetch('/api/user', {
-        headers: { Authorization: idToken }
-      })
-      const userData = await response.json()
-      currentUsername.value = userData.username
+
+  // Add loading timeout
+  const loadingTimeout = setTimeout(() => {
+    if (isLoading.value) {
+      isLoading.value = false
+      error.value = 'Loading timed out'
     }
-    fetchBooks()
+  }, 10000)
+
+  onAuthStateChanged(auth, async (firebaseUser) => {
+    try {
+      console.log('Auth state changed:', firebaseUser ? 'User logged in' : 'No user')
+      user.value = firebaseUser
+
+      if (firebaseUser) {
+        const idToken = await firebaseUser.getIdToken()
+        console.log('User token received:', idToken.substring(0, 20) + '...')
+
+        const response = await fetchApi('/user', {
+          headers: {
+            Authorization: `Bearer ${idToken}`
+          }
+        })
+
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error('User data error:', errorText)
+          throw new Error('Failed to fetch user data')
+        }
+
+        const userData = await response.json()
+        console.log('User data received:', userData)
+        currentUsername.value = userData.username
+      }
+
+      await fetchBooks()
+    } catch (err) {
+      console.error('Auth process error:', err)
+      error.value = err instanceof Error ? err.message : 'Failed to load data'
+    } finally {
+      clearTimeout(loadingTimeout)
+      isLoading.value = false
+    }
   })
 })
 
@@ -196,7 +254,6 @@ watch(() => props.username, fetchBooks)
   border: none;
 }
 
-/* Scrollbar styling */
 .book-row::-webkit-scrollbar {
   height: 8px;
 }
