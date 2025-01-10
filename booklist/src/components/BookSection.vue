@@ -116,7 +116,7 @@ const updateBookStatus = async (bookId: string, newStatus: 'Currently Reading' |
     const response = await fetchApi(`/books/${bookId}`, {
       method: 'PATCH',
       headers: {
-        Authorization: idToken,
+        Authorization: `Bearer ${idToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ status: newStatus })
@@ -155,16 +155,22 @@ onMounted(() => {
       try {
         const idToken = await firebaseUser.getIdToken()
         console.log('Got token, length:', idToken.length)
-        const response = await fetch('/api/user', {
+        const response = await fetchApi('/user', {
           headers: {
-            Authorization: idToken
+            Authorization: `Bearer ${idToken}`
           }
         })
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch user data: ${response.status}`)
+        }
+
         const userData = await response.json()
         console.log('User data:', userData)
         currentUsername.value = userData.username
       } catch (err) {
         console.error('Error fetching user data:', err)
+        error.value = 'Failed to fetch user data'
       }
     }
     fetchBooks()
