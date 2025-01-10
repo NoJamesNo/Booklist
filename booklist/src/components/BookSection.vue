@@ -23,7 +23,6 @@
           />
         </div>
       </div>
-
       <div class="category">
         <h2 class="text-h2">Completed</h2>
         <div
@@ -42,7 +41,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue'
 import AddBookButton from '@/components/books/AddBookButton.vue'
@@ -60,7 +58,6 @@ interface Book {
 
 const props = defineProps<{ username: string }>()
 const emit = defineEmits(['openModal', 'bookUpdated'])
-
 const currentlyReading = ref<Book[]>([])
 const haveRead = ref<Book[]>([])
 const isLoading = ref(true)
@@ -75,30 +72,12 @@ const isOwner = computed(() => {
 })
 
 const fetchBooks = async () => {
-  console.log('Fetching books for username:', props.username)
+  console.log('Fetching books for:', props.username)
   try {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json'
-    }
-
-    if (user.value) {
-      const idToken = await user.value.getIdToken()
-      console.log('Token for book fetch:', idToken.substring(0, 20) + '...')
-      headers['Authorization'] = `Bearer ${idToken}`
-    }
-
-    const response = await fetchApi(`/books/user/${props.username}`, { headers })
-    console.log('Books API response status:', response.status)
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('Error response:', errorText)
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-
+    const response = await fetchApi(`/books/user/${props.username}`)
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
     const data = await response.json()
     console.log('Books data received:', data)
-
     currentlyReading.value = data.books.filter((book: Book) => book.status === 'Currently Reading')
     haveRead.value = data.books.filter((book: Book) => book.status === 'Have Read')
   } catch (err) {
@@ -133,25 +112,18 @@ const updateBookStatus = async (bookId: string, newStatus: 'Currently Reading' |
   if (!user.value) return
   try {
     const idToken = await user.value.getIdToken()
-    console.log('Updating book status with token:', idToken.substring(0, 20) + '...')
-
+    console.log('Updating book status, token length:', idToken.length)
     const response = await fetchApi(`/books/${bookId}`, {
       method: 'PATCH',
       headers: {
-        Authorization: `Bearer ${idToken}`,
+        Authorization: idToken,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ status: newStatus })
     })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('Update status error:', errorText)
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 
     const book = [...currentlyReading.value, ...haveRead.value].find((b) => b.id === bookId)
-
     if (book) {
       book.status = newStatus
       currentlyReading.value = currentlyReading.value.filter((b) => b.id !== bookId)
@@ -176,49 +148,26 @@ const openModal = () => {
 onMounted(() => {
   console.log('Component mounted')
   const auth = getAuth()
-
-  // Add loading timeout
-  const loadingTimeout = setTimeout(() => {
-    if (isLoading.value) {
-      isLoading.value = false
-      error.value = 'Loading timed out'
-    }
-  }, 10000)
-
   onAuthStateChanged(auth, async (firebaseUser) => {
-    try {
-      console.log('Auth state changed:', firebaseUser ? 'User logged in' : 'No user')
-      user.value = firebaseUser
-
-      if (firebaseUser) {
+    console.log('Auth state changed:', firebaseUser ? 'User logged in' : 'No user')
+    user.value = firebaseUser
+    if (firebaseUser) {
+      try {
         const idToken = await firebaseUser.getIdToken()
-        console.log('User token received:', idToken.substring(0, 20) + '...')
-
-        const response = await fetchApi('/user', {
+        console.log('Got token, length:', idToken.length)
+        const response = await fetch('/api/user', {
           headers: {
-            Authorization: `Bearer ${idToken}`
+            Authorization: idToken
           }
         })
-
-        if (!response.ok) {
-          const errorText = await response.text()
-          console.error('User data error:', errorText)
-          throw new Error('Failed to fetch user data')
-        }
-
         const userData = await response.json()
-        console.log('User data received:', userData)
+        console.log('User data:', userData)
         currentUsername.value = userData.username
+      } catch (err) {
+        console.error('Error fetching user data:', err)
       }
-
-      await fetchBooks()
-    } catch (err) {
-      console.error('Auth process error:', err)
-      error.value = err instanceof Error ? err.message : 'Failed to load data'
-    } finally {
-      clearTimeout(loadingTimeout)
-      isLoading.value = false
     }
+    fetchBooks()
   })
 })
 
@@ -254,6 +203,7 @@ watch(() => props.username, fetchBooks)
   border: none;
 }
 
+/* Scrollbar styling */
 .book-row::-webkit-scrollbar {
   height: 8px;
 }
