@@ -340,4 +340,65 @@ onUnmounted(() => {
 .add-button:not(:disabled):hover {
   transform: translateY(-1px);
 }
+
+@media (max-width: 768px) {
+  .add-book-page {
+    padding: 16px;
+    height: auto;
+    overflow: visible;
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .search-container {
+    min-width: unset;
+    height: auto;
+    max-height: 50vh;
+  }
+
+  .book-details {
+    border-left: none;
+    border-top: 1px solid var(--color-border);
+    padding-left: 0;
+    padding-top: 24px;
+  }
+
+  .search-results {
+    max-height: 40vh;
+    overflow-y: auto;
+  }
+
+  .book-item {
+    padding: 12px;
+  }
+
+  .book-cover {
+    width: 60px;
+    height: 90px;
+  }
+
+  .detail-cover {
+    width: 80px;
+    height: 120px;
+  }
+
+  .status-options {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    margin-bottom: 16px;
+  }
+
+  .back-button {
+    padding: 6px 12px;
+  }
+
+  .search-input {
+    margin-bottom: 16px;
+  }
+}
 </style>

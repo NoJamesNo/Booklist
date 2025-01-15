@@ -1,7 +1,6 @@
 <template>
   <div>
     <div v-if="error" class="text-body">An error occurred: {{ error }}</div>
-    <div v-if="isLoading" class="text-body">Loading...</div>
     <div v-else>
       <div class="category">
         <h2 class="text-h2">Currently Reading</h2>
@@ -60,7 +59,6 @@ const props = defineProps<{ username: string }>()
 const emit = defineEmits(['openModal', 'bookUpdated'])
 const currentlyReading = ref<Book[]>([])
 const haveRead = ref<Book[]>([])
-const isLoading = ref(true)
 const user = ref<any>(null)
 const error = ref<string | null>(null)
 const isDragOverCurrentlyReading = ref(false)
@@ -101,8 +99,6 @@ const fetchBooks = async () => {
   } catch (err) {
     console.error('Error fetching books:', err)
     error.value = err instanceof Error ? err.message : 'An unknown error occurred'
-  } finally {
-    isLoading.value = false
   }
 }
 

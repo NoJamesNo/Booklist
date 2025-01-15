@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
 import Header from './components/Header.vue'
 import Sidebar from './components/Sidebar.vue'
@@ -14,12 +14,22 @@ onMounted(async () => {
     console.error('Backend test failed:', error)
   }
 })
+
+const isSidebarOpen = ref(false)
+
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value
+}
+
+const closeSidebar = () => {
+  isSidebarOpen.value = false
+}
 </script>
 
 <template>
-  <Header />
+  <Header @toggle-sidebar="toggleSidebar" />
+  <Sidebar :is-open="isSidebarOpen" @close="closeSidebar" />
   <div class="layout">
-    <Sidebar />
     <main class="main-content">
       <div class="content-container">
         <RouterView />
@@ -52,12 +62,4 @@ onMounted(async () => {
 }
 </style>
 
-<style>
-/* Global styles */
-body {
-  margin: 0;
-  padding: 0;
-  background-color: var(--color-background);
-  color: var(--color-text);
-}
-</style>
+<style></style>

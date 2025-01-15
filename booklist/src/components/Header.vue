@@ -1,5 +1,16 @@
 <template>
   <header class="header">
+    <button class="mobile-menu-button" @click="toggleSidebar" aria-label="Toggle menu">
+      <svg
+        class="menu-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="var(--color-text)"
+        stroke-width="2"
+      >
+        <path d="M3 12h18M3 6h18M3 18h18" />
+      </svg>
+    </button>
     <div class="brand">
       <img src="/images/logo.png" alt="Booklist Logo" class="logo" />
       <router-link :to="user ? `/${userData?.username}` : '/home'" class="text-logo logo-link">
@@ -79,6 +90,11 @@ const user = ref(auth.currentUser)
 const authInitialized = ref(false)
 const userData = ref<any>(null)
 const isDropdownOpen = ref(false)
+
+const emit = defineEmits(['toggle-sidebar'])
+const toggleSidebar = () => {
+  emit('toggle-sidebar')
+}
 
 const handleClickOutside = (event: MouseEvent) => {
   const profileContainer = document.querySelector('.profile-container')
@@ -282,5 +298,31 @@ const handleLogout = async () => {
   width: 20px;
   height: 20px;
   color: var(--color-text-soft);
+}
+
+.mobile-menu-button {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: var(--color-text);
+}
+
+.menu-icon {
+  width: 24px;
+  height: 24px;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-button {
+    display: flex; /* Show on mobile */
+  }
+
+  .header {
+    padding: 10px 16px;
+  }
 }
 </style>
