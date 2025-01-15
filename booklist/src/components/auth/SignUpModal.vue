@@ -76,6 +76,7 @@ const handleSubmit = async () => {
     password.value = ''
     confirmPassword.value = ''
     passwordError.value = ''
+    window.location.reload()
   } catch (error: any) {
     console.error('Sign up error:', error)
     if (error.code === 'auth/email-already-in-use') {
@@ -92,6 +93,7 @@ const handleGoogleSignIn = async (response: any) => {
     const userCredential = await signInWithCredential(auth, credential)
     await createOrUpdateUser(userCredential.user)
     closeModal()
+    window.location.reload()
   } catch (error) {
     console.error('Google sign-in error:', error)
   }
@@ -114,6 +116,7 @@ const createOrUpdateUser = async (user: any) => {
 
     const { user: userData } = await response.json()
     router.push(`/${userData.username}`)
+    await router.isReady()
   } catch (error) {
     console.error('Error:', error)
   }

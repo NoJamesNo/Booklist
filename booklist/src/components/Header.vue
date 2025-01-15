@@ -120,6 +120,7 @@ const navigateToProfile = () => {
 const handleLogout = async () => {
   try {
     await signOut(auth)
+    window.location.reload()
     router.push('/home')
   } catch (error) {
     console.error('Error signing out:', error)
